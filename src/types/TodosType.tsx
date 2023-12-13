@@ -7,6 +7,7 @@ export type Todo = {
 
 export interface TodoListProps {
     todos: Todo[];
+    setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
     isDone: boolean;
 }
 

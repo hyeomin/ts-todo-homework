@@ -1,17 +1,27 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { uuid } from "uuidv4";
 import "./App.css";
 import TodoList from "./components/TodoList";
-import { addTodo } from "./redux/modules/todos";
-import { RootState } from "./types/TodosType";
+import { Todo } from "./types/TodosType";
 
 function App() {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [todos, setTodos] = useState<Todo[]>([]);
 
-    const todos = useSelector((state: RootState) => state.todos);
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        const fetchTodos = async () => {
+            const { data } = await axios.get<Todo[]>(
+                `http://localhost:4000/todos`
+            );
+            setTodos(data);
+        };
+        fetchTodos();
+    }, []);
 
     const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -22,7 +32,7 @@ function App() {
         }
     };
 
-    const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
+    const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const newTodo = {
             id: uuid(),
@@ -30,9 +40,10 @@ function App() {
             content,
             isDone: false,
         };
-        dispatch(addTodo(newTodo));
-        setTitle("");
-        setContent("");
+        await axios.post(`http://localhost:4000/todos`, newTodo);
+        setTodos([...todos, newTodo]);
+        // setTitle("");
+        // setContent("");
     };
 
     return (
@@ -61,8 +72,8 @@ function App() {
                     <button type="submit">추가하기</button>
                 </form>
             </div>
-            <TodoList todos={todos} isDone={false} />
-            <TodoList todos={todos} isDone={true} />
+            <TodoList todos={todos} setTodos={setTodos} isDone={false} />
+            <TodoList todos={todos} setTodos={setTodos} isDone={true} />
         </div>
     );
 }

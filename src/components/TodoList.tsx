@@ -1,16 +1,20 @@
+import axios from "axios";
 import { useDispatch } from "react-redux";
-import { deleteTodo, switchTodo } from "../redux/modules/todos";
+import { switchTodo } from "../redux/modules/todos";
 import { TodoListProps } from "../types/TodosType";
 
-function TodoList({ todos, isDone }: TodoListProps) {
+function TodoList({ todos, setTodos, isDone }: TodoListProps) {
     const dispatch = useDispatch();
 
     const onUpdateStatusHandler = (id: string) => {
+        // await axios.patch(`http://localhost:4000/todos/${id}`)
         dispatch(switchTodo(id));
     };
 
-    const onDeleteHandler = (id: string) => {
-        dispatch(deleteTodo(id));
+    const onDeleteHandler = async (id: string) => {
+        await axios.delete(`http://localhost:4000/todos/${id}`);
+        setTodos(todos.filter((item) => item.id !== id));
+        // dispatch(deleteTodo(id));
     };
 
     return (
