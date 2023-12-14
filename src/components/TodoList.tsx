@@ -8,16 +8,21 @@ function TodoList({ todos, isDone }: TodoListProps) {
     const dispatch: AppDispatch = useDispatch();
 
     const onUpdateStatusHandler = async (id: string, isDone: boolean) => {
-        await axios.patch(`http://localhost:4000/todos/${id}`, {
-            isDone: !isDone,
-        });
+        await axios.patch(
+            `${process.env.REACT_APP_TODOS_SERVER_URL}/todos/${id}`,
+            {
+                isDone: !isDone,
+            }
+        );
         dispatch(__fetchTodos());
     };
 
     const onDeleteHandler = async (id: string) => {
         const confirmed = window.confirm("삭제하시겠습니까?");
         if (confirmed) {
-            await axios.delete(`http://localhost:4000/todos/${id}`);
+            await axios.delete(
+                `${process.env.REACT_APP_TODOS_SERVER_URL}/todos/${id}`
+            );
             dispatch(__fetchTodos());
         } else return;
     };

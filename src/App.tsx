@@ -10,7 +10,6 @@ import { RootState, Todo } from "./types/TodosType";
 function App() {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    // const [todos, setTodos] = useState<Todo[]>([]);
 
     const dispatch: AppDispatch = useDispatch();
 
@@ -36,7 +35,10 @@ function App() {
             content,
             isDone: false,
         };
-        await axios.post(`http://localhost:4000/todos`, newTodo);
+        await axios.post(
+            `${process.env.REACT_APP_TODOS_SERVER_URL}/todos`,
+            newTodo
+        );
         dispatch(__fetchTodos());
         setTitle("");
         setContent("");
