@@ -15,3 +15,8 @@ export interface RootState {
     isLoading: boolean;
     isError: boolean;
 }
+
+export interface switchMutationType {
+    id: string;
+    isDone: boolean;
+}

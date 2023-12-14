@@ -1,29 +1,36 @@
-import axios from "axios";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../redux/config/configStore";
-import { __fetchTodos } from "../redux/modules/todos";
-import { TodoListProps } from "../types/TodosType";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteTodo, switchTodo } from "../api/todosApi";
+import { TodoListProps, switchMutationType } from "../types/TodosType";
 
 function TodoList({ todos, isDone }: TodoListProps) {
-    const dispatch: AppDispatch = useDispatch();
+    const queryClient = useQueryClient();
+    const deleteMutation = useMutation({
+        mutationFn: deleteTodo,
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ["todos"] });
+        },
+    });
 
-    const onUpdateStatusHandler = async (id: string, isDone: boolean) => {
-        await axios.patch(
-            `${process.env.REACT_APP_TODOS_SERVER_URL}/todos/${id}`,
-            {
-                isDone: !isDone,
-            }
-        );
-        dispatch(__fetchTodos());
+    const siwtchMutation = useMutation({
+        mutationFn: ({ id, isDone }: switchMutationType) => {
+            return switchTodo(id, isDone);
+        },
+        onSuccess: async () => {
+            queryClient.invalidateQueries({ queryKey: ["todos"] });
+        },
+    });
+
+    const onUpdateStatusHandler = async ({
+        id,
+        isDone,
+    }: switchMutationType) => {
+        siwtchMutation.mutate({ id, isDone });
     };
 
     const onDeleteHandler = async (id: string) => {
         const confirmed = window.confirm("삭제하시겠습니까?");
         if (confirmed) {
-            await axios.delete(
-                `${process.env.REACT_APP_TODOS_SERVER_URL}/todos/${id}`
-            );
-            dispatch(__fetchTodos());
+            deleteMutation.mutate(id);
         } else return;
     };
 
@@ -39,7 +46,10 @@ function TodoList({ todos, isDone }: TodoListProps) {
                             <p>{todo.content}</p>
                             <button
                                 onClick={() =>
-                                    onUpdateStatusHandler(todo.id, todo.isDone)
+                                    onUpdateStatusHandler({
+                                        id: todo.id,
+                                        isDone: todo.isDone,
+                                    })
                                 }
                             >
                                 {todo.isDone ? "취소" : "완료"}

@@ -1,23 +1,32 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import "./App.css";
+import { addTodo, fetchTodos } from "./api/todosApi";
 import TodoList from "./components/TodoList";
-import { AppDispatch, useAppSelector } from "./redux/config/configStore";
-import { __fetchTodos } from "./redux/modules/todos";
-import { RootState, Todo } from "./types/TodosType";
+import { Todo } from "./types/TodosType";
 
 function App() {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
 
-    const dispatch: AppDispatch = useDispatch();
+    const queryClient = useQueryClient();
+    const addMutation = useMutation({
+        mutationFn: addTodo,
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ["todos"] });
+        },
+    });
 
-    useEffect(() => {
-        dispatch(__fetchTodos());
-    }, []);
+    const {
+        isLoading,
+        isError,
+        data: todos,
+    } = useQuery({
+        queryKey: ["todos"],
+        queryFn: fetchTodos,
+    });
 
-    const todos = useAppSelector((state: RootState) => state.todos);
+    console.log("과연", todos);
 
     const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -28,21 +37,21 @@ function App() {
         }
     };
 
-    const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
+    const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const newTodo: Omit<Todo, "id"> = {
             title,
             content,
             isDone: false,
         };
-        await axios.post(
-            `${process.env.REACT_APP_TODOS_SERVER_URL}/todos`,
-            newTodo
-        );
-        dispatch(__fetchTodos());
+        addMutation.mutate(newTodo);
         setTitle("");
         setContent("");
     };
+
+    if (isLoading) {
+        return <div>로딩 중입니다...</div>;
+    }
 
     return (
         <div>

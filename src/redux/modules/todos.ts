@@ -9,7 +9,7 @@ export const __fetchTodos = createAsyncThunk(
             const response = await axios.get(
                 `${process.env.REACT_APP_SERVER_URL}/todos`
             );
-            return response.data;
+            return response;
         } catch (error) {
             console.log("error", error);
         }
@@ -47,7 +47,7 @@ const todosSlice = createSlice({
             .addCase(__fetchTodos.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isError = false;
-                state.todos = action.payload;
+                // state.todos = action.payload;
             })
             .addCase(__fetchTodos.rejected, (state, action) => {
                 state.isLoading = false;
