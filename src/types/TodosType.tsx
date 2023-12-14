@@ -7,10 +7,11 @@ export type Todo = {
 
 export interface TodoListProps {
     todos: Todo[];
-    setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
     isDone: boolean;
 }
 
 export interface RootState {
     todos: Todo[];
+    isLoading: boolean;
+    isError: boolean;
 }

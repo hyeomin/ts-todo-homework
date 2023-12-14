@@ -1,27 +1,23 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { uuid } from "uuidv4";
 import "./App.css";
 import TodoList from "./components/TodoList";
-import { Todo } from "./types/TodosType";
+import { AppDispatch, useAppSelector } from "./redux/config/configStore";
+import { __fetchTodos } from "./redux/modules/todos";
+import { RootState, Todo } from "./types/TodosType";
 
 function App() {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    const [todos, setTodos] = useState<Todo[]>([]);
 
-    const dispatch = useDispatch();
+    const dispatch: AppDispatch = useDispatch();
 
     useEffect(() => {
-        const fetchTodos = async () => {
-            const { data } = await axios.get<Todo[]>(
-                `http://localhost:4000/todos`
-            );
-            setTodos(data);
-        };
-        fetchTodos();
+        dispatch(__fetchTodos());
     }, []);
+
+    const todos = useAppSelector((state: RootState) => state.todos);
 
     const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -34,14 +30,16 @@ function App() {
 
     const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const newTodo = {
-            id: uuid(),
+        const newTodo: Omit<Todo, "id"> = {
             title,
             content,
             isDone: false,
         };
-        await axios.post(`http://localhost:4000/todos`, newTodo);
-        setTodos([...todos, newTodo]);
+        await axios.post(
+            `${process.env.REACT_APP_TODOS_SERVER_URL}/todos`,
+            newTodo
+        );
+        dispatch(__fetchTodos());
         setTitle("");
         setContent("");
     };
@@ -57,7 +55,7 @@ function App() {
                             name="title"
                             value={title}
                             onChange={onChangeHandler}
-                            placeholder="내용 을 입력하세요."
+                            placeholder="제목 을 입력하세요."
                         />
                     </div>
                     <div>
@@ -66,14 +64,14 @@ function App() {
                             name="content"
                             value={content}
                             onChange={onChangeHandler}
-                            placeholder="제목을 입력하세요."
+                            placeholder="내용을 입력하세요."
                         />
                     </div>
                     <button type="submit">추가하기</button>
                 </form>
             </div>
-            <TodoList todos={todos} setTodos={setTodos} isDone={false} />
-            <TodoList todos={todos} setTodos={setTodos} isDone={true} />
+            <TodoList todos={todos} isDone={false} />
+            <TodoList todos={todos} isDone={true} />
         </div>
     );
 }
