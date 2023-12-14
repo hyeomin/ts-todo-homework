@@ -42,8 +42,8 @@ function App() {
         };
         await axios.post(`http://localhost:4000/todos`, newTodo);
         setTodos([...todos, newTodo]);
-        // setTitle("");
-        // setContent("");
+        setTitle("");
+        setContent("");
     };
 
     return (
