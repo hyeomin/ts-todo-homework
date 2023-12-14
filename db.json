@@ -1,9 +1,9 @@
 {
-    "todos": [
-        {
-            "id": 1,
-            "title": "json title test",
-            "content": "typicode content test"
-        }
-    ]
+  "todos": [
+    {
+      "id": 1,
+      "title": "json title test",
+      "content": "typicode content test"
+    }
+  ]
 }
