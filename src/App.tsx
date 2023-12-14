@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import styled from "styled-components";
 import "./App.css";
 import { addTodo, fetchTodos } from "./api/todosApi";
 import TodoList from "./components/TodoList";
@@ -54,17 +55,21 @@ function App() {
     }
 
     return (
-        <div>
-            <div className="header">헤더</div>
-            <div className="form-body">
-                <form onSubmit={onSubmitHandler}>
+        <Container>
+            <Header className="header">
+                <span>My Todo List</span>
+                <span>공부 가주아아</span>
+            </Header>
+            <FormContainer className="form-body">
+                <Form onSubmit={onSubmitHandler}>
+                    <h3>할 일을 입력하세요!</h3>
                     <div>
                         <label>제목</label>
                         <input
                             name="title"
                             value={title}
                             onChange={onChangeHandler}
-                            placeholder="제목 을 입력하세요."
+                            placeholder="제목을 입력하세요."
                         />
                     </div>
                     <div>
@@ -77,12 +82,65 @@ function App() {
                         />
                     </div>
                     <button type="submit">추가하기</button>
-                </form>
-            </div>
+                </Form>
+            </FormContainer>
             <TodoList todos={todos} isDone={false} />
             <TodoList todos={todos} isDone={true} />
-        </div>
+        </Container>
     );
 }
 
 export default App;
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+
+    max-width: 1200px;
+    min-width: 800px;
+
+    background-color: pink;
+    margin: 0 auto;
+    padding: 10px 30px;
+`;
+
+const Header = styled.div`
+    display: flex;
+    justify-content: space-between;
+
+    padding: 10px;
+`;
+
+const FormContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    background-color: lightblue;
+    padding: 20px;
+`;
+
+const Form = styled.form`
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+
+    padding: 20px;
+    border-radius: 10px;
+
+    background-color: pink;
+
+    & div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        column-gap: 10px;
+
+        & input {
+            padding: 3px 10px;
+            width: 300px;
+        }
+    }
+
+    & button {
+        padding: 4px;
+    }
+`;
